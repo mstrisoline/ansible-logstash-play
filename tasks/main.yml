@@ -1,0 +1,41 @@
+#File tasks/main.yml
+---
+
+- name: Install Logstash Package Dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - java
+    - daemonize
+  tags: ansible-logstash
+
+- name: Create Logstash Root Dir
+  file: state=directory dest=/opt/logstash owner=root group=root
+  tags: ansible-logstash
+
+- name: Create Logstash Bin Dir
+  file: state=directory dest=/opt/logstash/bin owner=root group=root
+  tags: ansible-logstash
+
+- name: Create Logstash Logging Dir
+  file: state=directory path=/opt/logstash/logs owner=root group=root
+  tags: ansible-logstash
+
+- name: Create Logstash Config Dir
+  file: state=directory path=/opt/logstash/conf owner=root group=root
+  tags: ansible-logstash
+
+- name: Copy Down Logstash Jar
+  get_url: dest="/opt/logstash/bin/{{ ansible_logstash_jar }}" url="https://download.elasticsearch.org/logstash/logstash/{{ ansible_logstash_jar }}"
+  tags: ansible-logstash
+
+- name: Link Logstash-Version.jar to logstash.jar
+  file: state=link src="/opt/logstash/bin/{{ ansible_logstash_jar }}" dest=/opt/logstash/bin/logstash.jar
+  tags: ansible-logstash
+
+- name: Copy Default Logstash Config
+  template: src=logstash.conf.j2 dest=/opt/logstash/conf/logstash.conf owner=root group=root
+  tags: ansible-logstash
+
+- name: Copy Logstash Init Script
+  template: src=logstash-init.j2 dest=/etc/init.d/logstash owner=root group=root mode=766
+  tags: ansible-logstash

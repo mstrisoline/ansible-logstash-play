@@ -1,0 +1,5 @@
+#File defaults/main.yml
+---
+ansible_logstash_jar: logstash-1.3.3-flatjar.jar
+ansible_logstash_config_file: /opt/logstash/conf/logstash.conf
+ansible_logstash_log_file: /opt/logstash/logs/logstash.log

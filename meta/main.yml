@@ -1,0 +1,16 @@
+#File meta/main.yml
+---
+galaxy_info:
+  author: "Matthew Trisoline"
+  description: "Ansible role that installs Logstash to RHEL Based Systems"
+  license: MIT
+  min_ansible_version: 1.4
+  platforms:
+    - name: Fedora
+      versions:
+        - 18
+        - 19
+        - 20
+  categories:
+    - development
+dependencies: []

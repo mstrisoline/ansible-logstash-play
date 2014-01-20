@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# Starts Logstash as a system daemon
+#chkconfig: 2345 20 80
+#description: Starts Logstash as a system daemon
+#processname: logstash
+
+
+LOCATION=/opt/logstash
+DESC="Logstash Daemon"
+NAME=java
+DAEMON=$(which java)
+CONFIG_DIR={{ ansible_logstash_config_file }}
+LOGFILE={{ ansible_logstash_log_file }}
+JARNAME=/opt/logstash/bin/logstash.jar
+ARGS="-jar ${JARNAME} agent --config ${CONFIG_DIR} --log ${LOGFILE}"
+SCRIPTNAME=/etc/init.d/logstash
+PIDFILE=/var/run/logstash.pid
+base=logstash
+
+# Exit if the package is not installed
+if [ ! -x "$DAEMON" ]; then
+{
+  echo "Couldn't find $DAEMON Java must be installed"
+  exit 99
+}
+fi
+
+[ "${NETWORKING}" = "no" ] && exit 1
+
+. /etc/init.d/functions
+
+start_logstash()
+{
+  echo -en "Starting Logstash\n"
+  daemonize -c $LOCATION -p $PIDFILE -l /var/lock/subsys/logstash $DAEMON $ARGS && success || failure
+}
+
+stop_logstash()
+{
+  echo -en "Stopping Logstash\n"
+  kill `cat $PIDFILE`
+  rm $PIDFILE
+  rm /var/lock/subsys/logstash && success || failure
+}
+
+case "$1" in
+  start)
+    start_logstash
+    ;;
+  stop)
+    stop_logstash
+    ;;
+  restart)
+    stop_logstash
+    start_logstash
+    ;;
+  status)
+    status -p $PIDFILE {logstash} && exit 0 || exit $?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+exit 0
